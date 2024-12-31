@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Speech-to-Text</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    #transcript {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      overflow-y: auto;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Speech-to-Text</h1>
+  <p>Click the button below and start speaking. The transcription will appear in real time.</p>
+  <button id="startStopBtn">Start Listening</button>
+  <div id="transcript" placeholder="Your speech will appear here..."></div>
+
+  <script>
+    const startStopBtn = document.getElementById('startStopBtn');
+    const transcriptDiv = document.getElementById('transcript');
+
+    let recognition;
+    let listening = false;
+
+    // Check for browser support
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        transcriptDiv.textContent = transcript;
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+      };
+
+      recognition.onend = () => {
+        listening = false;
+        startStopBtn.textContent = 'Start Listening';
+      };
+    } else {
+      alert('Your browser does not support the Web Speech API. Please use Google Chrome for the best experience.');
+      startStopBtn.disabled = true;
+    }
+
+    startStopBtn.addEventListener('click', () => {
+      if (listening) {
+        recognition.stop();
+        listening = false;
+        startStopBtn.textContent = 'Start Listening';
+      } else {
+        recognition.start();
+        listening = true;
+        startStopBtn.textContent = 'Stop Listening';
+      }
+    });
+  </script>
+</body>
+</html>
